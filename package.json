@@ -2,6 +2,8 @@
   "name": "guess-the-player-online",
   "version": "1.0.0",
   "private": true,
+  "author": "سامح حماده",
+  "description": "خمّن اللاعب — المالك الرئيسي: سامح حماده",
   "scripts": { "start": "node server.js" },
   "dependencies": { "ws": "^8.18.0" }
 }

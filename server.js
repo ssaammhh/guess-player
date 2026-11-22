@@ -1,12 +1,15 @@
+// خمّن اللاعب — المالك الرئيسي: سامح حماده
 const http=require('http'),fs=require('fs'),path=require('path');
 const {WebSocketServer}=require('ws');
 const PORT=process.env.PORT||3000;
-const page=path.join(__dirname,'index.html');
+const FILES={'/':['index.html','text/html; charset=utf-8'],'/index.html':['index.html','text/html; charset=utf-8'],'/manifest.json':['manifest.json','application/manifest+json'],'/sw.js':['sw.js','application/javascript'],'/icon-192.png':['icon-192.png','image/png'],'/icon-512.png':['icon-512.png','image/png']};
 const srv=http.createServer((q,r)=>{
-  if(q.url==='/health'){r.end('ok');return}
-  fs.readFile(page,(e,d)=>{
+  const u=q.url.split('?')[0];
+  if(u==='/health'){r.end('ok');return}
+  const f=FILES[u]||FILES['/'];
+  fs.readFile(path.join(__dirname,f[0]),(e,d)=>{
     if(e){r.writeHead(500);r.end('error');return}
-    r.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});r.end(d);
+    r.writeHead(200,{'Content-Type':f[1],'Cache-Control':f[0]==='sw.js'?'no-cache':'public, max-age=300'});r.end(d);
   });
 });
 const wss=new WebSocketServer({server:srv,maxPayload:8192});

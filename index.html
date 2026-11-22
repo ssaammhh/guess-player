@@ -1,11 +1,20 @@
 <!DOCTYPE html>
+<!-- خمّن اللاعب — المالك الرئيسي: سامح حماده -->
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#052b14">
 <meta name="author" content="سامح حماده">
-<title>خمّن اللاعب</title>
+<title>خمّن اللاعب | سامح حماده</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="خمّن اللاعب">
+<meta name="application-name" content="خمّن اللاعب - سامح حماده">
+<meta name="copyright" content="سامح حماده">
 <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Cairo:wght@600;800&display=swap" rel="stylesheet">
 <style>
 :root{--g1:#052b14;--g2:#0a3d1f;--lime:#b6ff3b;--gold:#ffd166;--ink:#f4fff0;--dim:#9cc9a8;--line:rgba(255,255,255,.18);--card:rgba(0,0,0,.32);color-scheme:dark}
@@ -81,8 +90,9 @@ input[type=text]:focus{border-color:var(--lime)}
   <div class="card"><label>عدد الجولات لكل لاعب</label>
     <div class="seg" id="rounds"><button data-v="3">3</button><button data-v="5" class="on">5</button><button data-v="10">10</button></div></div>
   <button class="btn" id="go">يلا نلعب</button>
+  <button class="btn ghost" id="inst" style="display:none">📲 ثبّت التطبيق على موبايلك</button>
   <button class="btn ghost" id="onl">🌐 العب أونلاين مع صاحبك</button>
-  <p class="foot">❖ هذا المشروع ملك سامح حماده ❖</p>
+  
 </section>
 
 <section class="scr" id="online">
@@ -115,9 +125,10 @@ input[type=text]:focus{border-color:var(--lime)}
   <h1 style="font-size:44px">النتيجة</h1>
   <div class="card ctr"><div class="big" id="win"></div><p class="sub" id="fin"></p></div>
   <button class="btn" id="again">العب تاني</button>
-  <p class="foot">❖ هذا المشروع ملك سامح حماده ❖</p>
+  
 </section>
 
+<p class="foot">❖ المالك الرئيسي: سامح حماده ❖<br>جميع الحقوق محفوظة © 2026</p>
 </main>
 <script>
 (function(){
@@ -536,6 +547,11 @@ $('#onl').onclick=function(){note('');show('online')};
 $('#bk').onclick=function(){leave();show('start')};
 $('#mk').onclick=function(){ctx();conn(function(){send({t:'create'})})};
 $('#jn').onclick=function(){ctx();var c=$('#code').value.trim().toUpperCase();if(c.length<4){note('اكتب الكود');return}conn(function(){send({t:'join',code:c,name:$('#n1').value.trim()})})};
+var dip=null;
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();dip=e;$('#inst').style.display=''});
+$('#inst').onclick=function(){if(!dip)return;dip.prompt();dip.userChoice.then(function(){dip=null;$('#inst').style.display='none'})};
+window.addEventListener('appinstalled',function(){$('#inst').style.display='none'});
+if('serviceWorker' in navigator&&location.protocol!=='file:'){navigator.serviceWorker.register('/sw.js').catch(function(){})}
 window.__counts={cur:parse(CUR,false).length,leg:parse(LEG,true).length};
 })();
 </script>

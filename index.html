@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#052b14">
+<meta name="author" content="سامح حماده">
+<title>خمّن اللاعب</title>
+<link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Cairo:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--g1:#052b14;--g2:#0a3d1f;--lime:#b6ff3b;--gold:#ffd166;--ink:#f4fff0;--dim:#9cc9a8;--line:rgba(255,255,255,.18);--card:rgba(0,0,0,.32);color-scheme:dark}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Cairo',system-ui,sans-serif;color:var(--ink);background:repeating-linear-gradient(90deg,var(--g1) 0 56px,var(--g2) 56px 112px);overflow:hidden}
+body::before{content:"";position:fixed;left:50%;top:44%;width:150vmin;height:150vmin;transform:translate(-50%,-50%);border:3px solid rgba(255,255,255,.1);border-radius:50%;pointer-events:none}
+body::after{content:"";position:fixed;left:0;right:0;top:44%;height:3px;background:rgba(255,255,255,.1);pointer-events:none}
+.app{position:relative;z-index:1;height:100%;max-width:460px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column}
+.scr{display:none;flex:1;min-height:0;flex-direction:column;gap:12px;overflow-y:auto}
+.scr.show{display:flex}
+h1{font:400 56px/1 'Lalezar','Cairo',sans-serif;text-align:center;color:var(--lime);text-shadow:0 4px 0 #1d5a2d,0 0 30px rgba(182,255,59,.45);margin-top:10px}
+.sub{text-align:center;color:var(--dim);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;backdrop-filter:blur(6px)}
+label{display:block;font-weight:800;margin-bottom:6px}
+input[type=text]{width:100%;font:800 18px 'Cairo',sans-serif;color:var(--ink);background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:14px;padding:12px 14px;outline:none}
+input[type=text]:focus{border-color:var(--lime)}
+.seg{display:flex;gap:8px}
+.seg button{flex:1;font:800 15px 'Cairo',sans-serif;color:var(--ink);background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:12px;padding:10px 4px;cursor:pointer}
+.seg button.on{background:var(--lime);color:#06210f;border-color:var(--lime)}
+.btn{font:400 26px 'Lalezar','Cairo',sans-serif;color:#06210f;background:linear-gradient(180deg,#d6ff7a,var(--lime));border:0;border-radius:16px;padding:12px;cursor:pointer;box-shadow:0 5px 0 #6aa81c}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #6aa81c}
+.btn.ghost{font:800 16px 'Cairo',sans-serif;color:var(--ink);background:rgba(255,255,255,.1);box-shadow:none;border:1px solid var(--line)}
+.score{display:flex;gap:10px}
+.pl{flex:1;text-align:center;border:1px solid var(--line);border-radius:16px;padding:8px;background:var(--card)}
+.pl.act{border-color:var(--lime);box-shadow:0 0 18px rgba(182,255,59,.4)}
+.pl b{display:block;font:400 30px/1.1 'Lalezar',sans-serif;color:var(--gold)}
+.pl span{font-weight:800;font-size:14px}
+.turn{text-align:center;font-weight:800}
+.mystery{text-align:center;padding:18px 10px}
+.mystery .q{font:400 90px/1 'Lalezar',sans-serif;color:var(--lime);text-shadow:0 0 30px rgba(182,255,59,.5)}
+.pts{display:inline-block;margin-top:4px;background:var(--gold);color:#3a2a00;font-weight:800;border-radius:999px;padding:3px 14px}
+.hints{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hints button{font:800 15px 'Cairo',sans-serif;color:var(--ink);background:rgba(255,255,255,.1);border:1px solid var(--line);border-radius:12px;padding:10px;cursor:pointer}
+.hints button:disabled{opacity:.45}
+.rev{display:flex;flex-direction:column;gap:6px}
+.rev div{background:rgba(182,255,59,.14);border:1px solid rgba(182,255,59,.4);border-radius:12px;padding:8px 12px;font-weight:800}
+.rev small{color:var(--dim);margin-left:6px}
+.msg{min-height:24px;text-align:center;font-weight:800;color:var(--gold)}
+.msg.bad{color:#ff7a7a;animation:sh .3s}
+@keyframes sh{25%{transform:translateX(6px)}75%{transform:translateX(-6px)}}
+.row{display:flex;gap:8px}
+.row input{flex:1}.row .btn{font-size:20px;padding:8px 18px}
+.big{font:400 44px/1.2 'Lalezar',sans-serif;text-align:center;color:var(--lime)}
+.ctr{text-align:center}
+.foot{text-align:center;color:var(--gold);font-weight:800;font-size:13px;padding-top:6px}
+@media (max-height:640px){h1{font-size:40px}.mystery .q{font-size:60px}}
+@media (prefers-reduced-motion:reduce){.msg.bad{animation:none}}
+.logo{width:92px;height:92px;margin:0 auto -4px;display:block;filter:drop-shadow(0 4px 14px rgba(255,61,139,.45))}
+.mute{position:absolute;z-index:3;left:14px;top:calc(12px + env(safe-area-inset-top,0px));width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:18px;cursor:pointer;color:var(--ink)}
+@media (max-height:700px){.logo{width:64px;height:64px}}
+</style>
+</head>
+<body>
+<main class="app">
+<button class="mute" id="mute" aria-label="الصوت">🔊</button>
+
+<section class="scr show" id="start">
+  <svg class="logo" viewBox="0 0 120 120" role="img" aria-label="شعار SAMH">
+    <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd166"/><stop offset=".5" stop-color="#ff3d8b"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs>
+    <path d="M60 6 L108 22 V62 C108 88 86 106 60 116 C34 106 12 88 12 62 V22 Z" fill="#06210f" stroke="url(#lg)" stroke-width="5"/>
+    <circle cx="60" cy="50" r="23" fill="none" stroke="#b6ff3b" stroke-width="2.5"/>
+    <polygon points="60,38 71,46 67,59 53,59 49,46" fill="#b6ff3b"/>
+    <path d="M60 38V27M71 46l10-4M67 59l7 9M53 59l-7 9M49 46l-10-4" stroke="#b6ff3b" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="60" y="97" text-anchor="middle" font-family="'Cinzel Decorative',Georgia,serif" font-weight="900" font-size="21" letter-spacing="3" fill="url(#lg)">SAMH</text>
+  </svg>
+  <h1>خمّن اللاعب</h1>
+  <p class="sub">مسابقة كروية بين لاعبين على موبايل واحد</p>
+  <div class="card"><label>اللاعب الأول</label><input type="text" id="n1" placeholder="اكتب اسمك"></div>
+  <div class="card"><label>اللاعب الثاني</label><input type="text" id="n2" placeholder="اكتب اسم صاحبك"></div>
+  <div class="card"><label>نوع اللاعبين</label>
+    <div class="seg" id="pool"><button data-v="all" class="on">الكل</button><button data-v="cur">نجوم الآن</button><button data-v="leg">أساطير</button></div></div>
+  <div class="card"><label>عدد الجولات لكل لاعب</label>
+    <div class="seg" id="rounds"><button data-v="3">3</button><button data-v="5" class="on">5</button><button data-v="10">10</button></div></div>
+  <button class="btn" id="go">يلا نلعب</button>
+  <button class="btn ghost" id="onl">🌐 العب أونلاين مع صاحبك</button>
+  <p class="foot">❖ هذا المشروع ملك سامح حماده ❖</p>
+</section>
+
+<section class="scr" id="online">
+  <h1 style="font-size:40px">أونلاين</h1>
+  <p class="sub">كل واحد على موبايله (اكتب اسمك في خانة اللاعب الأول)</p>
+  <button class="btn" id="mk">أنشئ غرفة</button>
+  <div class="card"><label>أو ادخل بكود الغرفة</label><div class="row"><input type="text" id="code" placeholder="الكود" maxlength="4" autocomplete="off" style="text-transform:uppercase;direction:ltr;text-align:center"><button class="btn" id="jn">ادخل</button></div></div>
+  <div class="msg" id="nmsg"></div>
+  <button class="btn ghost" id="bk">رجوع</button>
+</section>
+
+<section class="scr" id="game">
+  <div class="score"><div class="pl" id="p0"><span></span><b>0</b></div><div class="pl" id="p1"><span></span><b>0</b></div></div>
+  <div class="turn" id="turn"></div>
+  <div class="card mystery"><div class="q">؟</div><div class="pts" id="pts"></div></div>
+  <div class="hints" id="hints"></div>
+  <div class="rev" id="rev"></div>
+  <div class="msg" id="msg"></div>
+  <div class="row"><input type="text" id="guess" placeholder="اكتب اسم اللاعب" autocomplete="off"><button class="btn" id="ok">تأكيد</button></div>
+  <button class="btn ghost" id="skip">تخطّي (0 نقطة)</button>
+</section>
+
+<section class="scr" id="res">
+  <div class="turn" id="rt"></div>
+  <div class="card ctr"><div class="big" id="rn"></div><p class="sub" id="ri"></p><div class="pts" id="rp"></div></div>
+  <button class="btn" id="next">التالي</button>
+</section>
+
+<section class="scr" id="end">
+  <h1 style="font-size:44px">النتيجة</h1>
+  <div class="card ctr"><div class="big" id="win"></div><p class="sub" id="fin"></p></div>
+  <button class="btn" id="again">العب تاني</button>
+  <p class="foot">❖ هذا المشروع ملك سامح حماده ❖</p>
+</section>
+
+</main>
+<script>
+(function(){
+var NAT={eg:'مصر',fr:'فرنسا',pt:'البرتغال',ar:'الأرجنتين',en:'إنجلترا',es:'إسبانيا',de:'ألمانيا',br:'البرازيل',nl:'هولندا',be:'بلجيكا',hr:'كرواتيا',no:'النرويج',ma:'المغرب',dz:'الجزائر',sn:'السنغال',ng:'نيجيريا',jp:'اليابان',kr:'كوريا الجنوبية',it:'إيطاليا',uy:'أوروغواي',co:'كولومبيا',ec:'الإكوادور',mx:'المكسيك',us:'أمريكا',ca:'كندا',pl:'بولندا',ch:'سويسرا',dk:'الدنمارك',se:'السويد',at:'النمسا',tr:'تركيا',rs:'صربيا',si:'سلوفينيا',ge:'جورجيا',hu:'المجر',sc:'اسكتلندا',gh:'غانا',cm:'الكاميرون',ci:'ساحل العاج',sa:'السعودية',cz:'التشيك',ru:'روسيا',ua:'أوكرانيا',ro:'رومانيا',bg:'بلغاريا',ir:'إيران',lr:'ليبيريا',ie:'أيرلندا',wl:'ويلز'};
+var POS={'ح':'حارس مرمى','د':'مدافع','و':'لاعب وسط','م':'مهاجم'};
+var CUR=`محمد صلاح|eg|م|ليفربول
+عمر مرموش|eg|م|مانشستر سيتي
+محمد الشناوي|eg|ح|الأهلي
+مصطفى محمد|eg|م|نانت
+محمود تريزيجيه|eg|م|الأهلي
+أحمد سيد زيزو|eg|م|الأهلي
+إمام عاشور|eg|و|الأهلي
+محمد عبد المنعم|eg|د|نيس
+كيليان مبابي|fr|م|ريال مدريد
+عثمان ديمبلي|fr|م|باريس سان جيرمان
+أنطوان غريزمان|fr|م|أتلتيكو مدريد
+أوريليان تشواميني|fr|و|ريال مدريد
+إدواردو كامافينغا|fr|و|ريال مدريد
+ويليام ساليبا|fr|د|أرسنال
+مايك ماينيان|fr|ح|ميلان
+ثيو هيرنانديز|fr|د|الهلال
+ماركوس تورام|fr|م|إنتر
+مايكل أوليس|fr|م|بايرن ميونخ
+ريان شرقي|fr|و|مانشستر سيتي
+كينغسلي كومان|fr|م|النصر
+دايو أوباميكانو|fr|د|بايرن ميونخ
+برادلي باركولا|fr|م|باريس سان جيرمان
+ديزيريه دويه|fr|م|باريس سان جيرمان
+وارن زاير إيمري|fr|و|باريس سان جيرمان
+كريستيانو رونالدو|pt|م|النصر
+برونو فرنانديز|pt|و|مانشستر يونايتد
+برناردو سيلفا|pt|و|مانشستر سيتي
+روبن دياز|pt|د|مانشستر سيتي
+فيتينيا|pt|و|باريس سان جيرمان
+رافائيل لياو|pt|م|ميلان
+جواو فيليكس|pt|م|النصر
+نونو مينديز|pt|د|باريس سان جيرمان
+ديوغو كوستا|pt|ح|بورتو
+جواو نيفيز|pt|و|باريس سان جيرمان
+ليونيل ميسي|ar|م|إنتر ميامي
+لاوتارو مارتينيز|ar|م|إنتر
+جوليان ألفاريز|ar|م|أتلتيكو مدريد
+إنزو فرنانديز|ar|و|تشيلسي
+أليكسيس ماك أليستر|ar|و|ليفربول
+إيميليانو مارتينيز|ar|ح|أستون فيلا
+كريستيان روميرو|ar|د|توتنهام
+ليساندرو مارتينيز|ar|د|مانشستر يونايتد
+فرانكو ماستانتونو|ar|و|ريال مدريد
+نيكو باز|ar|و|كومو
+هاري كين|en|م|بايرن ميونخ
+جود بيلينغهام|en|و|ريال مدريد
+بوكايو ساكا|en|م|أرسنال
+فيل فودين|en|و|مانشستر سيتي
+ديكلان رايس|en|و|أرسنال
+كول بالمر|en|و|تشيلسي
+جوردان بيكفورد|en|ح|إيفرتون
+ترينت ألكسندر أرنولد|en|د|ريال مدريد
+كايل ووكر|en|د|بيرنلي
+جون ستونز|en|د|مانشستر سيتي
+ماركوس راشفورد|en|م|برشلونة
+أنتوني غوردون|en|م|نيوكاسل
+مارك غيهي|en|د|مانشستر سيتي
+أولي واتكينز|en|م|أستون فيلا
+إيبيريتشي إيزي|en|و|أرسنال
+كوبي ماينو|en|و|مانشستر يونايتد
+لامين يامال|es|م|برشلونة
+بيدري|es|و|برشلونة
+غافي|es|و|برشلونة
+رودري|es|و|مانشستر سيتي
+داني أولمو|es|و|برشلونة
+ألفارو موراتا|es|م|غلطة سراي
+ميكل أويارزابال|es|م|ريال سوسيداد
+نيكو ويليامز|es|م|أتلتيك بلباو
+ديفيد رايا|es|ح|أرسنال
+داني كارفاخال|es|د|ريال مدريد
+ميكل ميرينو|es|و|أرسنال
+فابيان رويز|es|و|باريس سان جيرمان
+مارك كوكوريا|es|د|تشيلسي
+أوناي سيمون|es|ح|أتلتيك بلباو
+باو كوبارسي|es|د|برشلونة
+أليخاندرو بالدي|es|د|برشلونة
+فلوريان فيرتز|de|و|ليفربول
+جمال موسيالا|de|و|بايرن ميونخ
+مانويل نوير|de|ح|بايرن ميونخ
+جوشوا كيميتش|de|و|بايرن ميونخ
+ليروي ساني|de|م|غلطة سراي
+كاي هافرتز|de|م|أرسنال
+أنطونيو روديغر|de|د|ريال مدريد
+نيك فولتيمادي|de|م|نيوكاسل
+مارك أندريه تير شتيغن|de|ح|برشلونة
+سيرج غنابري|de|م|بايرن ميونخ
+جوناثان تاه|de|د|بايرن ميونخ
+فينيسيوس جونيور|br|م|ريال مدريد
+رودريغو|br|م|ريال مدريد
+رافينيا|br|م|برشلونة
+نيمار|br|م|سانتوس
+أليسون بيكر|br|ح|ليفربول
+إيدر ميليتاو|br|د|ريال مدريد
+ماركينيوس|br|د|باريس سان جيرمان
+برونو غيمارايش|br|و|نيوكاسل
+ماتيوس كونيا|br|م|مانشستر يونايتد
+غابرييل ماجالهايس|br|د|أرسنال
+غابرييل جيسوس|br|م|أرسنال
+إيدرسون|br|ح|فنربخشة
+ريشارليسون|br|م|توتنهام
+لوكاس باكيتا|br|و|فلامنغو
+فيرجيل فان دايك|nl|د|ليفربول
+فرينكي دي يونغ|nl|و|برشلونة
+كودي غاكبو|nl|م|ليفربول
+ماتيس دي ليخت|nl|د|مانشستر يونايتد
+ناثان آكي|nl|د|مانشستر سيتي
+تيجاني رايندرز|nl|و|مانشستر سيتي
+دينزل دومفريس|nl|د|إنتر
+جيريمي فريمبونغ|nl|د|ليفربول
+كيفين دي بروين|be|و|نابولي
+تيبو كورتوا|be|ح|ريال مدريد
+روميلو لوكاكو|be|م|نابولي
+ليانردو تروسار|be|م|أرسنال
+جيريمي دوكو|be|م|مانشستر سيتي
+لوكا مودريتش|hr|و|ميلان
+يوشكو غفارديول|hr|د|مانشستر سيتي
+ماتيو كوفاسيتش|hr|و|مانشستر سيتي
+إيرلينغ هالاند|no|م|مانشستر سيتي
+مارتن أوديغارد|no|و|أرسنال
+ألكسندر سورلوث|no|م|أتلتيكو مدريد
+أشرف حكيمي|ma|د|باريس سان جيرمان
+ياسين بونو|ma|ح|الهلال
+إبراهيم دياز|ma|م|ريال مدريد
+نصير مزراوي|ma|د|مانشستر يونايتد
+يوسف النصيري|ma|م|فنربخشة
+أشرف داري|ma|د|الأهلي
+رياض محرز|dz|م|الأهلي السعودي
+أمين غويري|dz|م|مارسيليا
+ريان آيت نوري|dz|د|مانشستر سيتي
+ساديو ماني|sn|م|النصر
+إدوار ميندي|sn|ح|الأهلي السعودي
+نيكولاس جاكسون|sn|م|بايرن ميونخ
+إسماعيلا سار|sn|م|كريستال بالاس
+فيكتور أوسيمين|ng|م|غلطة سراي
+أديمولا لوكمان|ng|م|أتلانتا
+أليكس إيوبي|ng|و|فولهام
+سون هيونغ مين|kr|م|لوس أنجلوس
+لي كانغ إن|kr|و|باريس سان جيرمان
+كيم مين جاي|kr|د|بايرن ميونخ
+كاورو ميتوما|jp|م|برايتون
+تاكيفوسا كوبو|jp|م|ريال سوسيداد
+جيانلويجي دوناروما|it|ح|مانشستر سيتي
+نيكولو باريلا|it|و|إنتر
+فيديريكو كييزا|it|م|ليفربول
+ساندرو تونالي|it|و|نيوكاسل
+أليساندرو باستوني|it|د|إنتر
+جيوفاني دي لورينزو|it|د|نابولي
+فيديريكو ديماركو|it|د|إنتر
+جاكومو راسبادوري|it|م|أتلتيكو مدريد
+موسى كين|it|م|فيورنتينا
+فيديريكو فالفيردي|uy|و|ريال مدريد
+داروين نونيز|uy|م|الهلال
+رونالد أراوخو|uy|د|برشلونة
+مانويل أوغارتي|uy|و|مانشستر يونايتد
+لويس سواريز|uy|م|إنتر ميامي
+لويس دياز|co|م|بايرن ميونخ
+مويسيس كايسيدو|ec|و|تشيلسي
+راؤول خيمينيز|mx|م|فولهام
+سانتياغو خيمينيز|mx|م|ميلان
+إدسون ألفاريز|mx|و|فنربخشة
+ويستون ماكيني|us|و|يوفنتوس
+كريستيان بوليسيتش|us|م|ميلان
+تايلر آدامز|us|و|بورنموث
+ألفونسو ديفيز|ca|د|بايرن ميونخ
+جوناثان ديفيد|ca|م|يوفنتوس
+روبرت ليفاندوفسكي|pl|م|برشلونة
+فويتشيك تشيزني|pl|ح|برشلونة
+بيوتر زيلينسكي|pl|و|إنتر
+غرانيت تشاكا|ch|و|سندرلاند
+مانويل أكانجي|ch|د|مانشستر سيتي
+يان سومر|ch|ح|إنتر
+راسموس هويلوند|dk|م|نابولي
+ألكسندر إيزاك|se|م|ليفربول
+فيكتور غيوكيريس|se|م|أرسنال
+ديان كولوسيفسكي|se|و|توتنهام
+ديفيد ألابا|at|د|ريال مدريد
+مارسيل سابيتزر|at|و|بوروسيا دورتموند
+أردا غولر|tr|و|ريال مدريد
+كينان يلدز|tr|م|يوفنتوس
+هاكان تشالهان أوغلو|tr|و|إنتر
+ألكسندر ميتروفيتش|rs|م|الهلال
+دوشان فلاهوفيتش|rs|م|يوفنتوس
+يان أوبلاك|si|ح|أتلتيكو مدريد
+بنيامين شيشكو|si|م|مانشستر يونايتد
+خفيتشا كفاراتسخيليا|ge|م|باريس سان جيرمان
+دومينيك سوبوسلاي|hu|و|ليفربول
+سكوت ماكتوميناي|sc|و|نابولي
+محمد قدوس|gh|م|توتنهام
+أنطوان سيمينيو|gh|م|مانشستر سيتي
+بريان مبيومو|cm|م|مانشستر يونايتد
+فرانك كيسي|ci|و|الأهلي السعودي
+سالم الدوسري|sa|م|الهلال
+ريكاردو كالافيوري|it|د|أرسنال
+ريان غرافنبيرخ|nl|و|ليفربول
+مارتن زوبيمندي|es|و|أرسنال
+يورين تيمبر|nl|د|أرسنال
+كونور غالاغر|en|و|أتلتيكو مدريد
+لوكاس هيرنانديز|fr|د|باريس سان جيرمان
+بيدرو بورو|es|د|توتنهام
+ليني يورو|fr|د|مانشستر يونايتد`;
+var LEG=`بيليه|br|م|سانتوس
+دييغو مارادونا|ar|و|نابولي
+رونالدو الظاهرة|br|م|ريال مدريد
+روبرتو كارلوس|br|د|ريال مدريد
+زين الدين زيدان|fr|و|ريال مدريد
+رونالدينيو|br|و|برشلونة
+تييري هنري|fr|م|أرسنال
+يوهان كرويف|nl|م|أياكس
+فرانز بيكنباور|de|د|بايرن ميونخ
+باولو مالديني|it|د|ميلان
+روبرتو باجيو|it|م|يوفنتوس
+فرانشيسكو توتي|it|و|روما
+أليساندرو ديل بييرو|it|م|يوفنتوس
+أندريا بيرلو|it|و|ميلان
+جيانلويجي بوفون|it|ح|يوفنتوس
+فابيو كانافارو|it|د|يوفنتوس
+ماركو فان باستن|nl|م|ميلان
+رود خوليت|nl|م|ميلان
+فرانك ريكارد|nl|و|ميلان
+دينيس بيركامب|nl|م|أرسنال
+إدغار دافيدز|nl|و|يوفنتوس
+رود فان نيستلروي|nl|م|مانشستر يونايتد
+أريين روبن|nl|م|بايرن ميونخ
+ويسلي سنايدر|nl|و|إنتر
+روبن فان بيرسي|nl|م|مانشستر يونايتد
+تشافي هرنانديز|es|و|برشلونة
+أندريس إنييستا|es|و|برشلونة
+إيكر كاسياس|es|ح|ريال مدريد
+كارليس بويول|es|د|برشلونة
+سيرخيو راموس|es|د|ريال مدريد
+راؤول غونزاليس|es|م|ريال مدريد
+فرناندو توريس|es|م|أتلتيكو مدريد
+ديفيد فيا|es|م|فالنسيا
+تشابي ألونسو|es|و|ليفربول
+سيرجيو بوسكيتس|es|و|برشلونة
+جيرارد بيكيه|es|د|برشلونة
+لويس فيغو|pt|م|ريال مدريد
+أوزيبيو|pt|م|بنفيكا
+بيبي|pt|د|ريال مدريد
+كاكا|br|و|ميلان
+ريفالدو|br|و|برشلونة
+روماريو|br|م|برشلونة
+كافو|br|د|ميلان
+زيكو|br|و|فلامنغو
+سقراط|br|و|كورنثيانز
+غارينشا|br|م|بوتافوغو
+غابرييل باتيستوتا|ar|م|فيورنتينا
+خوان رومان ريكيلمي|ar|و|بوكا جونيورز
+خافيير زانيتي|ar|د|إنتر
+سيرخيو أغويرو|ar|م|مانشستر سيتي
+كارلوس تيفيز|ar|م|بوكا جونيورز
+خافيير ماسكيرانو|ar|و|برشلونة
+ألفريدو دي ستيفانو|ar|م|ريال مدريد
+زلاتان إبراهيموفيتش|se|م|ميلان
+فرانك لامبارد|en|و|تشيلسي
+ستيفن جيرارد|en|و|ليفربول
+ديفيد بيكهام|en|و|مانشستر يونايتد
+بول سكولز|en|و|مانشستر يونايتد
+ريان غيغز|wl|م|مانشستر يونايتد
+ريو فرديناند|en|د|مانشستر يونايتد
+جون تيري|en|د|تشيلسي
+واين روني|en|م|مانشستر يونايتد
+آلان شيرر|en|م|نيوكاسل
+غاري لينيكر|en|م|توتنهام
+باتريك فييرا|fr|و|أرسنال
+روبير بيريس|fr|م|أرسنال
+ليليان تورام|fr|د|يوفنتوس
+ديدييه ديشامب|fr|و|يوفنتوس
+ميشيل بلاتيني|fr|و|يوفنتوس
+إريك كانتونا|fr|م|مانشستر يونايتد
+ديدييه دروغبا|ci|م|تشيلسي
+صامويل إيتو|cm|م|برشلونة
+جورج ويا|lr|م|ميلان
+جاي جاي أوكوتشا|ng|و|باريس سان جيرمان
+يايا توريه|ci|و|مانشستر سيتي
+مايكل إيسيان|gh|و|تشيلسي
+محمد أبو تريكة|eg|و|الأهلي
+حسام حسن|eg|م|الزمالك
+محمود الخطيب|eg|م|الأهلي
+عصام الحضري|eg|ح|الأهلي
+أحمد حسام ميدو|eg|م|توتنهام
+رابح ماجر|dz|م|بورتو
+هيديتوشي ناكاتا|jp|و|روما
+بارك جي سونغ|kr|و|مانشستر يونايتد
+جورجي هاجي|ro|و|غلطة سراي
+هريستو ستويشكوف|bg|م|برشلونة
+لوثار ماتيوس|de|و|بايرن ميونخ
+يورغن كلينسمان|de|م|إنتر
+أوليفر كان|de|ح|بايرن ميونخ
+ميشائيل بالاك|de|و|بايرن ميونخ
+ميروسلاف كلوزه|de|م|لاتسيو
+فيليب لام|de|د|بايرن ميونخ
+باستيان شفاينشتايغر|de|و|بايرن ميونخ
+توماس مولر|de|م|بايرن ميونخ
+مسعود أوزيل|de|و|أرسنال
+غيرد مولر|de|م|بايرن ميونخ
+ليف ياشين|ru|ح|دينامو موسكو
+أندريه شيفتشينكو|ua|م|ميلان
+مايكل لاودروب|dk|و|برشلونة
+فيرينك بوشكاش|hu|م|ريال مدريد`;
+function parse(t,leg){return t.trim().split('\n').map(function(l){var a=l.split('|');return{n:a[0],c:NAT[a[1]]||a[1],p:POS[a[2]],k:a[3],leg:leg}})}
+var ALL=parse(CUR,false).concat(parse(LEG,true));
+function norm(s){return s.replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/\s+/g,' ').trim().toLowerCase()}
+ALL.forEach(function(p){p.q=norm(p.n)});
+function $(s){return document.querySelector(s)}
+function show(id){document.querySelectorAll('.scr').forEach(function(e){e.classList.toggle('show',e.id===id)})}
+var S={}, poolV='all', roundsV=5;
+var AC=null,muted=false;
+function ctx(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended'){try{AC.resume()}catch(e){}}return AC}
+function tone(f1,f2,t0,dur,type,vol,vib){
+  var a=ctx();if(!a||muted)return;
+  var o=a.createOscillator(),g=a.createGain(),s=a.currentTime+t0;
+  o.type=type;o.frequency.setValueAtTime(f1,s);
+  if(f2)o.frequency.exponentialRampToValueAtTime(f2,s+dur);
+  g.gain.setValueAtTime(0.0001,s);g.gain.exponentialRampToValueAtTime(vol||.25,s+.02);g.gain.exponentialRampToValueAtTime(.0001,s+dur);
+  if(vib){var l=a.createOscillator(),lg=a.createGain();l.frequency.value=7;lg.gain.value=vib;l.connect(lg);lg.connect(o.frequency);l.start(s);l.stop(s+dur+.05)}
+  o.connect(g);g.connect(a.destination);o.start(s);o.stop(s+dur+.05);
+}
+var SFX={
+  boing:function(d){d=d||0;tone(180,700,d,.18,'sine',.35);tone(700,150,d+.18,.35,'sine',.3,25)},
+  laugh:function(d){d=d||0;for(var i=0;i<5;i++)tone(430-i*28,300-i*20,d+i*.15,.11,'sawtooth',.16)},
+  sad:function(){[[311,0],[294,.38],[277,.76]].forEach(function(n){tone(n[0],n[0]*.97,n[1],.36,'sawtooth',.2)});tone(262,170,1.14,.9,'sawtooth',.22,12)},
+  win:function(){[523,659,784,1047].forEach(function(f,i){tone(f,0,i*.1,.18,'square',.14)});tone(1047,0,.45,.45,'square',.14)}
+};
+function buzz(){try{navigator.vibrate&&navigator.vibrate(60)}catch(e){}}
+
+function seg(id,cb){document.querySelectorAll('#'+id+' button').forEach(function(b){b.onclick=function(){document.querySelectorAll('#'+id+' button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');cb(b.dataset.v)}})}
+seg('pool',function(v){poolV=v});seg('rounds',function(v){roundsV=+v});
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function start(){ctx();
+  var pool=ALL.filter(function(p){return poolV==='all'||(poolV==='leg')===p.leg});
+  begin([$('#n1').value.trim()||'اللاعب 1',$('#n2').value.trim()||'اللاعب 2'],roundsV*2,shuffle(pool.slice()));
+}
+function begin(n,t,d){S={names:n,sc:[0,0],turn:0,total:t,deck:d};next()}
+function pts(){return Math.max(1,5-Object.keys(S.used).length-S.wrong)}
+function next(){
+  if(S.turn>=S.total){return end()}
+  S.cur=S.deck.pop();S.used={};S.wrong=0;
+  $('#msg').textContent='';$('#msg').className='msg';$('#guess').value='';
+  render();show('game');
+}
+function render(){
+  var g=S.turn%2,mine=!ON||g===me;
+  for(var i=0;i<2;i++){var e=$('#p'+i);e.querySelector('span').textContent=S.names[i];e.querySelector('b').textContent=S.sc[i];e.classList.toggle('act',i===g)}
+  $('#turn').textContent='دور '+S.names[g]+' يخمّن  •  جولة '+(Math.floor(S.turn/2)+1)+' من '+(S.total/2);
+  $('#pts').textContent='النقاط المتاحة: '+pts();
+  var H=[['c','الجنسية',S.cur.c],['p','المركز',S.cur.p],['k','النادي',S.cur.k],['l','أول حرف',S.cur.n.charAt(0)]];
+  var hb=$('#hints');hb.innerHTML='';var rv=$('#rev');rv.innerHTML='';
+  H.forEach(function(h){
+    var b=document.createElement('button');b.textContent=h[1];b.disabled=!!S.used[h[0]]||!mine;
+    b.onclick=function(){S.used[h[0]]=1;SFX.boing();if(ON)send({t:'hint',k:h[0]});render()};hb.appendChild(b);
+    if(S.used[h[0]]){var d=document.createElement('div');var s=document.createElement('small');s.textContent=h[1]+':';d.appendChild(s);d.appendChild(document.createTextNode(h[2]));rv.appendChild(d)}
+  });
+  ['#guess','#ok','#skip'].forEach(function(x){$(x).disabled=!mine});
+}
+function check(){
+  var g=norm($('#guess').value);if(g.length<2)return;
+  var full=S.cur.q,m=$('#msg');
+  var c=ALL.filter(function(p){return p.q.indexOf(g)>-1});
+  if(g===full||(c.length===1&&c[0]===S.cur&&g.length>=3)){return done(true)}
+  if(c.length>1&&c.indexOf(S.cur)>-1){m.textContent='في أكتر من لاعب بالاسم ده، اكتب اسم أوضح';m.className='msg';return}
+  if(ON)send({t:'wrong'});S.wrong++;SFX.boing();SFX.laugh(.5);buzz();m.textContent='غلط، حاول تاني (النقاط: '+pts()+')';m.className='msg bad';$('#guess').value='';$('#pts').textContent='النقاط المتاحة: '+pts();
+}
+function done(win,rm){
+  if(ON&&!rm)send({t:'done',win:win});
+  var g=S.turn%2,p=win?pts():0;if(win)SFX.win();else{SFX.sad();SFX.laugh(1.9)}S.sc[g]+=p;
+  $('#rt').textContent=win?'برافو يا '+S.names[g]+'! 🎉':'اللاعب كان:';
+  $('#rn').textContent=S.cur.n;$('#ri').textContent=S.cur.c+' • '+S.cur.p+' • '+S.cur.k;
+  $('#rp').textContent='+'+p+' نقطة';
+  S.turn++;$('#next').disabled=ON&&S.turn%2!==me;show('res');
+}
+function end(){
+  var a=S.sc[0],b=S.sc[1];if(a===b)SFX.boing();else SFX.win();
+  $('#win').textContent=a===b?'تعادل! 🤝':'الفائز: '+S.names[a>b?0:1]+' 🏆';
+  $('#fin').textContent=S.names[0]+' '+a+' — '+b+' '+S.names[1];
+  show('end');
+}
+$('#mute').onclick=function(){muted=!muted;this.textContent=muted?'🔇':'🔊';if(!muted){ctx();SFX.boing()}};$('#go').onclick=start;$('#ok').onclick=check;$('#skip').onclick=function(){done(false)};
+$('#next').onclick=function(){if(ON)send({t:'next'});next()};$('#again').onclick=function(){leave();show('start')};
+$('#guess').addEventListener('keydown',function(e){if(e.key==='Enter')check()});
+var ON=false,me=0,ws=null;
+function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
+function leave(){ON=false;var w=ws;ws=null;if(w){try{w.close()}catch(e){}}}
+function note(t){$('#nmsg').textContent=t}
+function cards(a){return a.map(function(i){return ALL[i]||ALL[0]})}
+function conn(first){
+  if(!location.host){note('افتح اللعبة من رابط السيرفر مش من الملف');return}
+  leave();note('جاري الاتصال...');
+  var w=ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host);
+  w.onopen=first;
+  w.onerror=function(){note('تعذر الاتصال بالسيرفر')};
+  w.onclose=function(){if(w===ws&&ON){ON=false;note('الاتصال انقطع');show('online')}};
+  w.onmessage=function(e){var m;try{m=JSON.parse(e.data)}catch(x){return}
+    if(m.t==='room'){ON=true;me=0;note('كود الغرفة: '+m.code+' — ابعته لصاحبك واستنى')}
+    else if(m.t==='joined'){ON=true;me=1;note('اتوصلت! استنى صاحبك يبدأ')}
+    else if(m.t==='err'){note(m.m)}
+    else if(m.t==='peer'){
+      var d=shuffle(ALL.map(function(p,i){return i}).filter(function(i){return poolV==='all'||(poolV==='leg')===ALL[i].leg}));
+      var n=[$('#n1').value.trim()||'اللاعب 1',m.name||'اللاعب 2'];
+      send({t:'start',names:n,total:roundsV*2,deck:d});begin(n,roundsV*2,cards(d));
+    }
+    else if(m.t==='start'&&me===1&&S&&Array.isArray(m.deck)&&Array.isArray(m.names)){begin(m.names.map(String),+m.total||10,cards(m.deck))}
+    else if(m.t==='hint'&&'cpkl'.indexOf(m.k)>-1&&S.cur){S.used[m.k]=1;SFX.boing();render()}
+    else if(m.t==='wrong'&&S.cur){S.wrong++;SFX.boing();SFX.laugh(.5);$('#msg').textContent='غلط!';$('#msg').className='msg bad';$('#pts').textContent='النقاط المتاحة: '+pts()}
+    else if(m.t==='done'&&S.cur){done(!!m.win,true)}
+    else if(m.t==='next'){next()}
+    else if(m.t==='left'){leave();note('صاحبك خرج من اللعبة');show('online')}
+  };
+}
+$('#onl').onclick=function(){note('');show('online')};
+$('#bk').onclick=function(){leave();show('start')};
+$('#mk').onclick=function(){ctx();conn(function(){send({t:'create'})})};
+$('#jn').onclick=function(){ctx();var c=$('#code').value.trim().toUpperCase();if(c.length<4){note('اكتب الكود');return}conn(function(){send({t:'join',code:c,name:$('#n1').value.trim()})})};
+window.__counts={cur:parse(CUR,false).length,leg:parse(LEG,true).length};
+})();
+</script>
+</body>
+</html>

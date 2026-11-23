@@ -6,6 +6,7 @@ const FILES={'/':['index.html','text/html; charset=utf-8'],'/index.html':['index
 const srv=http.createServer((q,r)=>{
   const u=q.url.split('?')[0];
   if(u==='/health'){r.end('ok');return}
+  if(/^\/[a-z-]+\.mp3$/.test(u)){return fs.readFile(path.join(__dirname,u),(e,d)=>{if(e){r.writeHead(404);r.end();return}r.writeHead(200,{'Content-Type':'audio/mpeg','Cache-Control':'public, max-age=86400'});r.end(d)})}
   const f=FILES[u]||FILES['/'];
   fs.readFile(path.join(__dirname,f[0]),(e,d)=>{
     if(e){r.writeHead(500);r.end('error');return}

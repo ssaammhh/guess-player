@@ -22,7 +22,7 @@ function log(id,a,w,b){db.tx.push({t:Date.now(),id,a,w,b});if(db.tx.length>5000)
 function auth(o){const u=db.users[String(o.id||'')];return u&&crypto.timingSafeEqual(sha(o.key||''),Buffer.from(u.kh,'hex'))?u:null}
 function body(q,cb){let d='';q.on('data',c=>{d+=c;if(d.length>4096)q.destroy()});q.on('end',()=>{let o={};try{o=JSON.parse(d||'{}')}catch(e){}cb(o&&typeof o==='object'?o:{})})}
 function newId(){let i;do{i='P-'+Math.floor(10000+Math.random()*90000)}while(db.users[i]);return i}
-const FILES={'/':['index.html','text/html; charset=utf-8'],'/index.html':['index.html','text/html; charset=utf-8'],'/admin':['admin.html','text/html; charset=utf-8'],'/manifest.json':['manifest.json','application/manifest+json'],'/sw.js':['sw.js','application/javascript'],'/icon-192.png':['icon-192.png','image/png'],'/icon-512.png':['icon-512.png','image/png']};
+const FILES={'/':['index.html','text/html; charset=utf-8'],'/index.html':['index.html','text/html; charset=utf-8'],'/admin':['admin.html','text/html; charset=utf-8'],'/football':['football.html','text/html; charset=utf-8'],'/manifest.json':['manifest.json','application/manifest+json'],'/sw.js':['sw.js','application/javascript'],'/icon-192.png':['icon-192.png','image/png'],'/icon-512.png':['icon-512.png','image/png']};
 const srv=http.createServer((q,r)=>{
   const u=q.url.split('?')[0],ip=(q.headers['x-forwarded-for']||q.socket.remoteAddress||'').split(',')[0].trim();
   if(u==='/health'){r.end('ok');return}

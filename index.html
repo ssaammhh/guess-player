@@ -79,6 +79,21 @@ input[type=text]:focus{border-color:var(--lime)}
 #wel{position:fixed;inset:0;z-index:99;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;background:radial-gradient(circle,#0a3d1f,#021a0b);color:var(--gold);font:400 38px/1.5 'Lalezar','Cairo',sans-serif;animation:wi .8s}
 @keyframes wi{from{opacity:0;transform:scale(.8)}}
 #wel.out{opacity:0;pointer-events:none;transition:opacity .6s}
+.foot a{color:var(--lime);font-weight:800;text-decoration:none}
+.wal{display:flex;justify-content:space-between;align-items:center;gap:6px;font-weight:800;font-size:14px;padding:10px 12px}.wal b{color:var(--gold)}
+.wal button{font:800 12px 'Cairo',sans-serif;color:var(--ink);background:rgba(255,255,255,.1);border:1px solid var(--line);border-radius:10px;padding:6px 8px;cursor:pointer}
+.mc{display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer}.mc:active{transform:scale(.98)}
+.mc .t{font:400 20px/1.2 'Lalezar','Cairo',sans-serif;color:var(--lime)}.mc small{display:block;color:var(--dim);font-weight:700}
+.mc .c{background:var(--gold);color:#3a2a00;font-weight:800;border-radius:999px;padding:3px 12px;white-space:nowrap}
+.sb{display:flex;align-items:center;justify-content:center;gap:10px;font:400 22px 'Lalezar','Cairo',sans-serif}
+.sb span:first-child{color:#ff8a8a}.sb span:last-child{color:#8fb4ff}.sb .s{color:var(--gold);font-size:34px}
+.pitch{position:relative;flex:none;height:min(60vh,520px);border:3px solid rgba(255,255,255,.55);border-radius:12px;background:repeating-linear-gradient(0deg,#146b34 0 40px,#188040 40px 80px)}
+.pitch::before{content:"";position:absolute;left:0;right:0;top:50%;height:3px;background:rgba(255,255,255,.55)}
+.pitch::after{content:"";position:absolute;left:50%;top:50%;width:84px;height:84px;margin:-42px;border:3px solid rgba(255,255,255,.55);border-radius:50%}
+.dot{position:absolute;transform:translate(-50%,-50%);width:62px;text-align:center;z-index:2;font-size:10px;font-weight:800;line-height:1.1;color:#fff;text-shadow:0 1px 2px #000}
+.dot i{display:flex;width:32px;height:32px;margin:0 auto 2px;border-radius:50%;align-items:center;justify-content:center;font:800 14px 'Cairo',sans-serif;font-style:normal;border:2px solid #fff}
+.dot.h i{background:#d62828}.dot.a i{background:#1d4ed8}
+.dot.q{cursor:pointer}.dot.q i{background:var(--gold);color:#3a2a00;animation:pl 1.2s infinite}.dot.sel i{outline:3px solid var(--lime)}
 </style>
 </head>
 <body>
@@ -96,6 +111,7 @@ input[type=text]:focus{border-color:var(--lime)}
   </svg>
   <h1>خمّن اللاعب</h1>
   <p class="sub">مسابقة كروية بين لاعبين على موبايل واحد</p>
+  <div class="card wal"><span>🆔 <b id="wid">—</b></span><span>⭐ <b id="wpt">0</b></span><button id="wcopy">📋 نسخ</button><button id="wchg">💳 اشحن</button></div>
   <div class="card"><label>اللاعب الأول</label><input type="text" id="n1" placeholder="اكتب اسمك"></div>
   <div class="card"><label>اللاعب الثاني</label><input type="text" id="n2" placeholder="اكتب اسم صاحبك"></div>
   <div class="card"><label>نوع اللاعبين</label>
@@ -104,6 +120,7 @@ input[type=text]:focus{border-color:var(--lime)}
     <div class="seg" id="rounds"><button data-v="3">3</button><button data-v="5" class="on">5</button><button data-v="10">10</button></div></div>
   <button class="btn" id="go">يلا نلعب</button>
   <button class="btn ghost" id="inst" style="display:none">📲 ثبّت التطبيق على موبايلك</button>
+  <button class="btn" id="mbtn">⚽ ماتشات حقيقية</button>
   <button class="btn ghost" id="onl">🌐 العب أونلاين مع صاحبك</button>
   
 </section>
@@ -115,6 +132,26 @@ input[type=text]:focus{border-color:var(--lime)}
   <div class="card"><label>أو ادخل بكود الغرفة</label><div class="row"><input type="text" id="code" placeholder="الكود" maxlength="4" autocomplete="off" style="text-transform:uppercase;direction:ltr;text-align:center"><button class="btn" id="jn">ادخل</button></div></div>
   <div class="msg" id="nmsg"></div>
   <button class="btn ghost" id="bk">رجوع</button>
+</section>
+
+<section class="scr" id="mlist">
+  <h1 style="font-size:40px">ماتشات ⚽</h1>
+  <p class="sub" id="mbal"></p>
+  <div id="mcards" style="display:flex;flex-direction:column;gap:10px"></div>
+  <div class="msg" id="mmsg"></div>
+  <button class="btn" id="wchg2">💳 اشحن رصيدك</button>
+  <button class="btn ghost" id="mbk">رجوع</button>
+</section>
+
+<section class="scr" id="mt">
+  <div class="score"><div class="pl" id="m0"><span></span><b>0</b></div><div class="pl" id="m1"><span></span><b>0</b></div></div>
+  <div class="card"><div class="sb"><span id="mh"></span><span class="s" id="mscore"></span><span id="ma"></span></div><p class="sub" id="mnote" style="font-size:13px"></p><p class="sub" id="mgoals" style="font-size:13px"></p></div>
+  <div class="turn" id="mturn"></div>
+  <div class="pitch" id="pitch"></div>
+  <div class="msg" id="mmsg2"></div>
+  <div class="row"><input type="text" id="mg" placeholder="اسم اللاعب (الاسم الأخير يكفي)" autocomplete="off"><button class="btn" id="mok">تأكيد</button></div>
+  <button class="btn ghost" id="mskip">أظهر اللاعب (0 نقطة والدور يتحول)</button>
+  <button class="btn ghost" id="mexit">خروج</button>
 </section>
 
 <section class="scr" id="game">
@@ -143,7 +180,7 @@ input[type=text]:focus{border-color:var(--lime)}
   
 </section>
 
-<p class="foot">❖ المالك الرئيسي: سامح حماده ❖<br>جميع الحقوق محفوظة © 2026</p>
+<p class="foot">❖ المالك الرئيسي: سامح حماده ❖<br>جميع الحقوق محفوظة © 2026<br>📞 تواصل مع المطور (سامح): <a href="tel:01033721502"><span dir="ltr">01033721502</span></a> • <a href="https://wa.me/201033721502" target="_blank" rel="noopener">واتساب</a></p>
 </main>
 <div id="wel">سامح بيه بيرحب بيك يا بكالوريا</div>
 <script>
@@ -607,6 +644,55 @@ window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();dip
 $('#inst').onclick=function(){if(!dip)return;dip.prompt();dip.userChoice.then(function(){dip=null;$('#inst').style.display='none'})};
 window.addEventListener('appinstalled',function(){$('#inst').style.display='none'});
 if('serviceWorker' in navigator&&location.protocol!=='file:'){navigator.serviceWorker.register('/sw.js').catch(function(){})}
+/* ===== المحفظة والماتشات ===== */
+var U=null,PT=0,M=null;try{U=JSON.parse(localStorage.getItem('gu')||'null')}catch(e){}
+function api(p,b){return fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b||{})}).then(function(r){return r.json()})}
+function wal(p){if(p!=null)PT=p;$('#wid').textContent=U?U.id:'—';$('#wpt').textContent=PT;$('#mbal').textContent='رصيدك: '+PT+' ⭐'+(U?' • ID: '+U.id:'')}
+function reg(){if(!location.host||location.protocol==='file:')return;
+  if(U&&U.id){api('/api/me',U).then(function(d){if(d.ok)wal(d.points);else if(d.err==='nouser'){U=null;try{localStorage.removeItem('gu')}catch(e){}reg()}}).catch(function(){})}
+  else{api('/api/register').then(function(d){if(d.ok){U={id:d.id,key:d.key};try{localStorage.setItem('gu',JSON.stringify(U))}catch(e){}wal(d.points)}}).catch(function(){})}}
+function charge(){if(U)window.open('https://wa.me/201033721502?text='+encodeURIComponent('عايز أشحن رصيد. الـ ID بتاعي: '+U.id),'_blank')}
+$('#wchg').onclick=charge;$('#wchg2').onclick=charge;
+$('#wcopy').onclick=function(){if(!U)return;var b=this;try{navigator.clipboard.writeText(U.id)}catch(e){}b.textContent='✓ اتنسخ';setTimeout(function(){b.textContent='📋 نسخ'},1500)};
+reg();
+function mlist(){show('mlist');wal();$('#mmsg').textContent='';var L=$('#mcards');L.textContent='جاري التحميل...';
+  fetch('/api/matches').then(function(r){return r.json()}).then(function(a){L.textContent='';a.forEach(function(m){
+    var c=document.createElement('div'),l=document.createElement('div'),t=document.createElement('div'),s=document.createElement('small'),p=document.createElement('span');
+    c.className='card mc';t.className='t';t.textContent=m.home+' '+m.hs+' - '+m.as+' '+m.away;s.textContent=m.comp+' • '+m.year;
+    l.appendChild(t);l.appendChild(s);p.className='c';p.textContent=m.cost+' ⭐';c.appendChild(l);c.appendChild(p);c.onclick=function(){playM(m)};L.appendChild(c)})}).catch(function(){L.textContent='تعذر تحميل الماتشات — افتح اللعبة من رابط السيرفر'})}
+function playM(m){var g=$('#mmsg');if(!U){g.textContent='ثواني... بنجهز حسابك';reg();return}
+  api('/api/play',{id:U.id,key:U.key,match:m.id,name:$('#n1').value.trim()}).then(function(d){
+    if(d.ok){wal(d.points);startM(d.match)}
+    else if(d.err==='funds'){wal(d.points);g.textContent='رصيدك '+d.points+' ⭐ ومحتاج '+m.cost+' — اضغط "اشحن" وابعت الـ ID للمالك'}
+    else if(d.err==='nouser'){U=null;reg();g.textContent='حسابك اتجدد، جرب تاني'}
+    else g.textContent='حصل خطأ، جرب تاني'}).catch(function(){g.textContent='تعذر الاتصال بالسيرفر'})}
+var PL={'حارس':'ح','مدافع':'د','وسط':'و','مهاجم':'ه'};
+function rowsPos(f,top){var P=[],n=f.length;f.forEach(function(c,r){for(var i=0;i<c;i++){var fr=n>1?r/(n-1):0;P.push({x:(i+1)/(c+1)*100,y:top?7+fr*36:93-fr*36,pos:r===0?'حارس':r===n-1?'مهاجم':r===1?'مدافع':'وسط'})}});return P}
+function startM(m){ctx();var P=[];
+  [[m.hf,m.h,0,false],[m.af,m.a,1,true]].forEach(function(t){rowsPos(t[0],t[3]).forEach(function(p,i){p.t=t[2];p.n=t[1][i];p.q=norm(p.n);P.push(p)})});
+  var ids=shuffle(P.map(function(p,i){return i}).filter(function(i){return P[i].pos!=='حارس'})).slice(0,8);
+  M={m:m,P:P,hid:{},sc:[0,0],turn:0,sel:-1,left:ids.length,names:[$('#n1').value.trim()||'اللاعب 1',$('#n2').value.trim()||'اللاعب 2']};
+  ids.forEach(function(i){M.hid[i]=1});
+  $('#mh').textContent=m.home;$('#ma').textContent=m.away;$('#mscore').textContent=m.hs+' - '+m.as;$('#mgoals').textContent='⚽ '+m.goals;$('#mnote').textContent=m.comp+' • '+m.year+(m.note?' — '+m.note:'');
+  $('#mmsg2').textContent='';$('#mg').value='';rM();show('mt')}
+function rM(){var pc=$('#pitch');pc.textContent='';
+  M.P.forEach(function(p,i){var h=M.hid[i],d=document.createElement('div'),b=document.createElement('i'),l=document.createElement('span');
+    d.className='dot '+(p.t?'a':'h')+(h?' q':'')+(M.sel===i?' sel':'');d.style.left=p.x+'%';d.style.top=p.y+'%';
+    b.textContent=h?'؟':PL[p.pos];l.textContent=h?p.pos:p.n.split(' ').slice(-1)[0];d.appendChild(b);d.appendChild(l);
+    if(h)d.onclick=function(){M.sel=i;rM();$('#mg').focus()};pc.appendChild(d)});
+  for(var k=0;k<2;k++){var e=$('#m'+k);e.querySelector('span').textContent=M.names[k];e.querySelector('b').textContent=M.sc[k];e.classList.toggle('act',k===M.turn%2)}
+  $('#mturn').textContent='دور '+M.names[M.turn%2]+' — اضغط على ؟ واكتب الاسم • باقي '+M.left}
+function gM(skip){stopWrong();var m=$('#mmsg2');
+  if(M.sel<0){m.className='msg';m.textContent='اختار لاعب (؟) من الملعب الأول';return}
+  var p=M.P[M.sel],g=norm($('#mg').value),ok=!skip&&g.length>=3&&(g===p.q||p.q.split(' ').indexOf(g)>-1);
+  if(!skip&&g.length<2)return;
+  if(ok||skip){if(ok){M.sc[M.turn%2]+=2;SFX.win();m.textContent='✅ '+p.n+' (+2)'}else m.textContent='اللاعب كان: '+p.n;
+    m.className='msg';delete M.hid[M.sel];M.sel=-1;M.left--;M.turn++}
+  else{wrongSnd();buzz();m.textContent='❌ غلط — الدور اتحول';m.className='msg bad';M.turn++}
+  $('#mg').value='';if(M.left<=0)return eM();rM()}
+function eM(){var a=M.sc[0],b=M.sc[1];playA(A.win);$('#win').textContent=a===b?'تعادل! 🤝':'الفائز: '+M.names[a>b?0:1]+' 🏆';$('#fin').textContent=M.names[0]+' '+a+' — '+b+' '+M.names[1];show('end')}
+$('#mbtn').onclick=mlist;$('#mbk').onclick=function(){show('start')};$('#mok').onclick=function(){gM(false)};$('#mskip').onclick=function(){gM(true)};
+$('#mexit').onclick=function(){stopWrong();mlist()};$('#mg').addEventListener('keydown',function(e){if(e.key==='Enter')gM(false)});
 window.__counts={cur:parse(CUR,false).length,leg:parse(LEG,true).length};
 })();
 </script>
